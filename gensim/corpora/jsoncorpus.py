@@ -12,6 +12,8 @@ from gensim.corpora.mmcorpus import MmCorpus
 from gensim.parsing.preprocessing import preprocess_string
 import json
 import logging
+import sys
+import traceback
 
 logger = logging.getLogger('gensim.corpora.jsoncorpus')
 #dictionary.filterExtremes(noBelow=2) # post-process the dictionary: remove tokens that are too frequent or too infrequent
@@ -24,7 +26,7 @@ logger = logging.getLogger('gensim.corpora.jsoncorpus')
 
 class JsonCorpus(corpora.TextCorpus):
 
-    def __init__(self, input, no_below=10, dictionary=None):
+    def __init__(self, input, dictionary=None, no_below=10, no_above=0.5):
         """
         Initialize the corpus. This scans the corpus once, to determine its
         vocabulary (only the first `keep_words` most frequent words that
@@ -37,7 +39,7 @@ class JsonCorpus(corpora.TextCorpus):
             self.dictionary = Dictionary()
             if input is not None:
                 self.dictionary.add_documents(self.get_texts())
-                self.dictionary.filter_extremes(no_below=no_below)
+                self.dictionary.filter_extremes(no_below=no_below, no_above=no_above)
             else:
                 logger.warning("No input document stream provided !!!")
 
@@ -51,7 +53,16 @@ class JsonCorpus(corpora.TextCorpus):
         """
         length = 0
         for line in self.getstream():
-            article = json.loads(line)
+            if length < 999000:
+                continue
+            try:
+                article = json.loads(line)
+            except Exception as inst:
+                print line
+                print inst
+                for tb in traceback.format_tb(sys.exc_info()[2]):
+                    print tb
+
             s = u""
             for chapter in article[article.keys()[0]].itervalues():
                 s = s + u" " + chapter[0]
@@ -70,10 +81,10 @@ class JsonCorpus(corpora.TextCorpus):
 
 if __name__ == '__main__':
     print 'start'
-    bla = JsonCorpus("/Users/dedan/projects/mpi/data/corpora/wiki/wiki_de_2011/test_wiki.json")
+    bla = JsonCorpus("/data/corpora/wiki/wiki_de_2011/wiki.json")
     print bla.dictionary
     for line in bla.get_texts():
         print list(line)
-    MmCorpus.serialize('test_bow.mm', bla, progress_cnt=10000)
+    MmCorpus.serialize('/data/corpora/wiki/wiki_de_2011/de_bow.mm', bla, progress_cnt=10000)
 
 
