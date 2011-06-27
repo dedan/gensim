@@ -8,13 +8,14 @@
 Automated tests for checking corpus I/O formats (the corpora package).
 """
 
+from gensim.corpora import bleicorpus, mmcorpus, lowcorpus, svmlightcorpus, \
+    dictionary, jsoncorpus
 import logging
 import os
 import os.path
-import unittest
 import tempfile
+import unittest
 
-from gensim.corpora import bleicorpus, mmcorpus, lowcorpus, svmlightcorpus, dictionary
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.WARNING)
 
@@ -94,6 +95,22 @@ class TestBleiCorpus(unittest.TestCase, CorpusTesterABC):
         self.file_extension = '.blei'
 #endclass TestBleiCorpus
 
+
+class TestJsonCorpus(unittest.TestCase):
+    def setUp(self):
+        pre_path = os.path.join(os.path.dirname(__file__), 'test_data')
+        self.cor_path = os.path.join(pre_path, 'very_small.json')
+
+
+    def test_dict(self):
+        """with the small corpus and no filtering, dict length should be 8"""
+        corp = jsoncorpus.JsonCorpus(self.cor_path, no_below=0, no_above=1)
+        assert len(corp.dictionary) == 8
+
+    def test_filter(self):
+        """with the small corpus and standard filtering, length should be 0"""
+        corp = jsoncorpus.JsonCorpus(self.cor_path)
+        assert len(corp.dictionary) == 0
 
 
 if __name__ == '__main__':

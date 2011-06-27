@@ -66,8 +66,6 @@ class JsonCorpus(corpora.TextCorpus):
             s = u""
             for chapter in article[article.keys()[0]].itervalues():
                 s = s + u" " + chapter[0]
-                print chapter[0]
-            print s
             length += 1
             if (length % 1000) == 0:
                 print length
