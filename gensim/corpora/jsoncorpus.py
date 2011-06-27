@@ -69,6 +69,9 @@ class JsonCorpus(corpora.TextCorpus):
                 print chapter[0]
             print s
             length += 1
+            if (length % 1000) == 0:
+                print length
+
             yield utils.tokenize(s, lowercase=True)
         self.length = length
 
